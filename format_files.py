@@ -46,7 +46,13 @@ def format_files(folder_path,subfolder,files_prefix,month,year):
             # print(old_path, new_path)
             shutil.copy(old_path,new_path)
 
-subfolder = 'Formatted'
-files_type_list = return_files_types(folder_path)
-create_file_types_folders(folder_path,subfolder,files_type_list)
-format_files(folder_path,subfolder,files_prefix,month,year)
+def main():
+    subfolder = 'Formatted'
+    print(f'\nFORMATTING PHOTOS\nFOLDER PATH INPUT: "{folder_path}"\n')
+    files_type_list = return_files_types(folder_path)
+    create_file_types_folders(folder_path,subfolder,files_type_list)
+    format_files(folder_path,subfolder,files_prefix,month,year)
+    print(f'DONE FORMATTING PHOTOS\nFOLDER PATH OUTPUT: "{folder_path}/{subfolder}"\n')
+
+if __name__ == "__main__":
+    main()
