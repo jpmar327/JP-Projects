@@ -4,11 +4,11 @@ import shutil
 # ADD DELETE ORIGINAL FILE FUNCTION: VAL = DELETE_ORIG_YN
 
 '''----------------------------- CHANGE INPUTS BELOW -----------------------------'''
-files_prefix = 'GO'
-month = '6'
-year = '2025'
+files_prefix = 'MF'
+month = '9'
+year = '2024'
 # main_folder_path = r"C:/Users/jpmar/Pictures/DSLR/Redwoods State Park - June 9 2023"
-main_folder_path = r"C:\Users\jpmar\Documents\Pictures\DSLR\Goias - Jun 2025"
+main_folder_path = r"C:\Users\jpmar\Documents\Pictures\DSLR\Mateus 1st Birthday - September 2024"
 
 '''----------------------------- FUNCTIONS -----------------------------'''
 
@@ -35,7 +35,7 @@ def prep_file_paths(files_path_list):
         for file in value:
             file_type = file.split('.')[-1]
             if file_type not in file_type_count_tracker.keys():
-                file_type_count_tracker[file_type] = 0
+                file_type_count_tracker[file_type] = 1
             else:
                 file_type_count_tracker[file_type] += 1
             filepath = os.path.join(key, file)
