@@ -50,7 +50,7 @@ def copy_file_to_new_path(copy_path_dict):
         print('------------------------------------------------------')
         print(copy_path)
         print(copy_path_dict[copy_path])
-        # shutil.copy(copy_path,copy_path_dict[copy_path])
+        shutil.copy(copy_path,copy_path_dict[copy_path])
 
 '''----------------------------- MAIN FUNCTION -----------------------------'''
 
