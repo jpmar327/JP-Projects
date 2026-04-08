@@ -2,7 +2,7 @@ import pyautogui
 import time
 import random
 
-def create_move_list(move_count = 15, x_limit = 150, y_limit = 50):
+def create_move_list(move_count = 15, x_limit = 100, y_limit = 50):
     """
     The function intakes or uses inputs by default and generates a list of the path the mouse cursor will follow
     - Input
