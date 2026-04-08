@@ -37,7 +37,7 @@ def format_files(folder_path,subfolder,files_prefix,month,year,files_type_list):
             for dirname in os.listdir(fr"{folder_path}/{dirfolder}"):
                 file_type = dirname.split('.')[-1]
                 if file_type_check.lower() == file_type.lower():
-                    print(dirname)
+                    # print(dirname)
                     file_name = dirname.split('.')[0]
                     filepath = fr"{dirfolder}/{file_name}"
                     if dsc_tracker == '' or filepath != dsc_tracker:
