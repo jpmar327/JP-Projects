@@ -1,6 +1,9 @@
 import pyautogui
 import time
 import random
+import datetime
+
+
 
 def create_move_list(move_count = 15, x_limit = 100, y_limit = 50):
     """
@@ -35,9 +38,10 @@ def jiggle_mouse(interval=60, move_count=15, cursor_move_duration=0.005):
     
     try:
         while True:
+            # print(datetime.datetime.now())
             # Move the mouse by a small random amount
             move_list = create_move_list(move_count)
-            print(move_list)
+            print(f'\n{str(datetime.datetime.now())}\n{move_list}\n')
             # FORWARD PATHING - Moves the mouse by a random amount forward
             for move_xy in move_list:
                 pyautogui.moveRel(move_xy[0], move_xy[1], cursor_move_duration)
