@@ -18,9 +18,3 @@ The Mouse Wiggler is an application designed to prevent your computer from going
 1. **Clone the Repository**: Run `git clone https://github.com/jpmar327/JP-Projects.git`
 2. **Install Dependencies**: Navigate to the project directory and run `npm install`.
 3. **Run the Application**: Use `npm start` to launch the application.
-
-## Contribution
-Feel free to open issues or submit pull requests if you would like to contribute!  
-  
-## License
-This project is licensed under the MIT License.
