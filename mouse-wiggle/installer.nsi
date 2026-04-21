@@ -1,9 +1,9 @@
-; Windows installer script
+; Windows NSIS installer script that creates Mouse-Wiggler-Setup.exe
 
-OutFile "mouse-wiggle-installer.exe"
-InstallDir "$PROGRAMFILES\MouseWiggle"
+OutFile "Mouse-Wiggler-Setup.exe"
 
-Section
-   SetOutPath "$INSTDIR"
-   File "mouse-wiggle.exe"
+Section "Install"
+  SetOutPath "$INSTDIR"
+  File "my_application.exe"
+  File "my_library.dll"
 SectionEnd
