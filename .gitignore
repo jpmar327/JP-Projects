@@ -1,0 +1,15 @@
+# Ignore build folder
+build/
+
+# Ignore dist folder
+dist/
+
+# Ignore Python cache directory
+__pycache__/
+
+# Ignore target directory
+target/
+
+# Ignore IDE folders
+.vscode/
+.idea/
