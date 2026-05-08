@@ -64,7 +64,7 @@ def on_start():
         messagebox.showerror("Invalid Input", "Please enter valid numbers for all fields.")
         return
 
-    log("Mouse jiggler started. Press Stop to stop.\n")
+    log("Twitchy started. Press Stop to stop.\n")
     start_btn.config(state=tk.DISABLED)
     stop_btn.config(state=tk.NORMAL)
 
@@ -92,11 +92,11 @@ def on_exit():
 
 # --- Build the window ---
 root = tk.Tk()
-root.title("Mouse Wiggler GUI")
+root.title("Twitchy")
 root.resizable(False, False)
 
 # Title
-tk.Label(root, text="Mouse Wiggler Control Panel", font=("Arial", 16, "bold")).grid(
+tk.Label(root, text="Twitchy Control Panel", font=("Arial", 16, "bold")).grid(
     row=0, column=0, columnspan=2, pady=(12, 8), padx=16
 )
 
