@@ -1,15 +1,51 @@
-# Ignore build folder
-build/
+# Ignored folders
+Misc - Career/
+DNU/
+ai-agents/
+mouse-wiggle/
 
-# Ignore dist folder
-dist/
-
-# Ignore Python cache directory
+# Python
 __pycache__/
-
-# Ignore target directory
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
 target/
+wheels/
+MANIFEST
 
-# Ignore IDE folders
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Environment variables / secrets
+*.env
+.env.*
+secrets.py
+config.py
+
+# IDEs
 .vscode/
 .idea/
+*.suo
+*.user
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
