@@ -1,9 +1,3 @@
-# Ignored folders
-Misc - Career/
-DNU/
-ai-agents/
-mouse-wiggle/
-
 # Python
 __pycache__/
 *.py[cod]
