@@ -69,7 +69,8 @@ Do not trust an internal sense of "current date" — it can be stale or wrong.
   events a general city page misses, and vice versa. Check both.
 - **Promoter/venue social accounts** (Instagram, etc.) — useful for confirming
   dates, catching conflicts with ticketing-site listings, and finding events too
-  small or too recent to be indexed yet.
+  small or too recent to be indexed yet. Has real access limits — see 3.5 for
+  what's actually fetchable versus what requires a user-provided screenshot.
 - **Direct venue searches** — for well-known clubs/venues, search the venue name
   plus the month/date range directly.
 
@@ -93,6 +94,46 @@ Do not trust an internal sense of "current date" — it can be stale or wrong.
 - Treat a genre tag as a starting point, not proof — if a listing is ambiguous
   (e.g. a themed flashback/hits night with no clear genre), say so rather than
   confidently bucketing it.
+
+### 3.5 Handling Instagram & other social media content
+Instagram is often where local promoters post first — sometimes exclusively —
+so it's worth pursuing, but its content has real, structural access limits.
+Know which of these situations you're in:
+
+- **A post or Story URL itself (e.g. `instagram.com/p/...`)** — not directly
+  fetchable. Instagram's site rules block automated access to these pages, and
+  no workaround (searching for the post ID, etc.) reliably surfaces the actual
+  content. Don't waste turns retrying this — it will not work.
+- **A bio link, or a redirect wrapper around one (e.g. `l.instagram.com/?u=...`)**
+  — this is different and usually **does** work. These links point to the
+  account's own external website (a venue's homepage, a ticketing page, etc.),
+  which isn't behind Instagram's restrictions. Technique:
+  1. If the wrapper URL is very long, don't fetch it as-is — it may be rejected
+     for length.
+  2. Extract the real destination from the `u=` parameter (URL-decode it),
+     strip tracking parameters (`utm_*`, `fbclid`, etc.), and use the clean
+     base URL instead.
+  3. Search for that clean URL first if it hasn't appeared in the conversation
+     yet, then fetch it.
+  4. Treat what you find there as genuine corroboration (e.g. confirming a
+     venue is real, its address, its hours) — but recognize it usually won't
+     confirm event-specific details like a one-off flyer's date or lineup,
+     since venue websites rarely maintain event calendars. Say so explicitly
+     rather than implying the venue site "confirmed" the event.
+- **Story/post images and flyers** — you cannot browse or screenshot these
+  yourself. The reliable path is: the person uploads a screenshot, you read it
+  directly (this works well — treat it like reading any flyer or document),
+  then you **independently verify** the extractable facts (venue name and
+  address, artist/DJ identity, date's day-of-week consistency with what's
+  printed, ticketing platform legitimacy) via live web search before adding it
+  to your output. Never present flyer contents as fully confirmed just because
+  they were legible — the verification step is what makes it trustworthy, not
+  the image-reading step.
+- **No official API workaround exists** for monitoring arbitrary third-party
+  accounts. Meta's Graph API only covers accounts that directly authorize your
+  app; it will not let you "watch" a promoter's account you don't control.
+  Don't suggest or attempt scraping as a substitute — treat the
+  screenshot-and-verify workflow above as the actual solution, not a fallback.
 
 ---
 
