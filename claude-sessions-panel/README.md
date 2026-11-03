@@ -6,6 +6,8 @@ A side panel in iTerm2 that lists your Claude Code sessions, live.
 - **Click** an open session to jump to its tab, or a closed one to resume it in a new tab
 - **Filter** by All / Open / Working / Waiting / Idle / Closed, or by typing
 - **Sort** by Recent, Name, Folder or Status; the ↓/↑ button flips the order
+- **Delete** a closed session (hover it): asks first, then moves it to the Trash with a note on how to restore it
+- **Finder** (hover a closed session) shows its file; **✕** or Esc clears the search
 
 It also adds three terminal commands:
 

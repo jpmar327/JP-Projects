@@ -17,6 +17,7 @@ import glob
 import json
 import os
 import shlex
+import shutil
 import subprocess
 import sys
 import time
@@ -140,6 +141,51 @@ def ago(ts):
 def short_path(path):
     home = os.path.expanduser("~")
     return "~" + path[len(home):] if path.startswith(home) else path
+
+
+def session_files(session_id):
+    """The conversation file and its same-named folder (helper-agent work), if present."""
+    matches = glob.glob(os.path.join(CLAUDE_DIR, "projects", "*", f"{session_id}.jsonl"))
+    if not matches:
+        return []
+    folder = matches[0][:-len(".jsonl")]
+    return [matches[0]] + ([folder] if os.path.isdir(folder) else [])
+
+
+def reveal_session(session_id):
+    """Show the session's file selected in Finder."""
+    files = session_files(session_id)
+    if not files:
+        return False
+    subprocess.run(["open", "-R", files[0]], check=False)
+    return True
+
+
+def trash_session(session_id):
+    """Move a closed session's files into one folder in the Trash, with a note on where they came from.
+
+    Refuses open sessions. Returns the Trash folder path, or None.
+    """
+    if session_id in open_session_ids():
+        return None
+    files = session_files(session_id)
+    if not files:
+        return None
+    name, _, _ = read_session(files[0])
+    safe = "".join(c if c.isalnum() or c in " -_." else "_" for c in (name or "unnamed"))[:60].strip()
+    dest = os.path.expanduser(f"~/.Trash/Claude session - {safe} - {session_id[:8]}")
+    if os.path.exists(dest):
+        dest += time.strftime(" %Y%m%d-%H%M%S")
+    os.makedirs(dest)
+    original_dir = os.path.dirname(files[0])
+    for path in files:
+        shutil.move(path, dest)
+        _read_cache.pop(path, None)
+    with open(os.path.join(dest, "RESTORE.txt"), "w") as f:
+        f.write(f"Claude Code session: {name}\nSession ID: {session_id}\n\n"
+                f"To restore it, move the other items in this folder back to:\n{original_dir}\n\n"
+                f"Then reopen it with:  claude --resume {session_id}\n")
+    return dest
 
 
 def find_session(session_id):

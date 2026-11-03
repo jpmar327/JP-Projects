@@ -38,6 +38,11 @@ PAGE = """<!doctype html>
   header { position:sticky; top:0; background:var(--bg); padding:6px; border-bottom:1px solid var(--line); display:flex; gap:6px; z-index:1; }
   #dir { padding:2px 7px; border:1px solid var(--line); border-radius:5px; background:transparent; color:var(--fg); cursor:pointer; }
   select { padding:3px 4px; border:1px solid var(--line); border-radius:5px; background:transparent; color:var(--fg); }
+  .qwrap { position:relative; flex:1; display:flex; }
+  .qwrap input { flex:1; padding-right:20px; }
+  #qx { display:none; position:absolute; right:3px; top:50%; transform:translateY(-50%); border:0; background:transparent;
+        color:var(--dim); cursor:pointer; padding:0 4px; font-size:11px; line-height:1; }
+  #qx:hover { color:var(--fg); }
   input { flex:1; padding:4px 6px; border:1px solid var(--line); border-radius:5px; background:transparent; color:var(--fg); }
   nav { position:sticky; top:35px; background:var(--bg); display:flex; flex-wrap:wrap; gap:4px; padding:5px 6px; border-bottom:1px solid var(--line); z-index:1; }
   nav button { padding:2px 7px; border:1px solid var(--line); border-radius:10px; background:transparent; color:var(--dim); cursor:pointer; }
@@ -54,15 +59,23 @@ PAGE = """<!doctype html>
   .n { font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .m { color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px; }
   .empty { color:var(--dim); padding:10px 8px; }
+  .acts { display:none; gap:4px; align-self:center; flex:none; }
+  .s:hover .acts { display:flex; }
+  .acts button, .confirm button { padding:1px 6px; border:1px solid var(--line); border-radius:4px; background:var(--bg); color:var(--fg); cursor:pointer; font-size:10px; }
+  .acts .del:hover { border-color:#d9534f; color:#d9534f; }
+  .confirm { padding:7px 8px; border-bottom:1px solid var(--line); border-left:3px solid #d9534f; background:var(--row); }
+  .confirm p { margin:0 0 6px; line-height:1.4; }
+  .confirm .yes { background:#b52b27; border-color:#b52b27; color:#fff; }
+  .confirm .no { margin-right:4px; }
 </style></head><body>
-<header><input id="q" placeholder="Filter…" oninput="render()"><select id="sort" title="Sort by" onchange="changeSort()"><option value="time">Recent</option><option value="name">Name</option><option value="path">Folder</option><option value="status">Status</option></select><button id="dir" onclick="flipOrder()">↓</button></header>
+<header><span class="qwrap"><input id="q" placeholder="Filter…" oninput="render()" onkeydown="if (event.key === 'Escape') clearSearch()"><button id="qx" title="Clear search" onclick="clearSearch()">✕</button></span><select id="sort" title="Sort by" onchange="changeSort()"><option value="time">Recent</option><option value="name">Name</option><option value="path">Folder</option><option value="status">Status</option></select><button id="dir" onclick="flipOrder()">↓</button></header>
 <nav id="chips"></nav>
 <div id="list"><div class="empty">Loading…</div></div>
 <script>
   const TOKEN = '__TOKEN__';
   const SPIN = ['·','✢','✳','✶','✻','✽','✻','✶','✳','✢'];
   const LABEL = {busy:'working', waiting:'waiting for you', idle:'idle', closed:'closed'};
-  let sessions = [], last = '';
+  let sessions = [], last = '', pendingDelete = null;  // id waiting for the user to confirm
   const SORTS = {
     time: (a, b) => b.last_used - a.last_used,
     name: (a, b) => a.name.localeCompare(b.name, undefined, {sensitivity:'base', numeric:true}),
@@ -87,10 +100,18 @@ PAGE = """<!doctype html>
   const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const row = s => `<div class="s" data-id="${esc(s.id)}" title="${esc(s.cwd)}">
       <span class="dot ${s.status}" title="${LABEL[s.status] || s.status}">${s.status === 'busy' ? SPIN[0] : '●'}</span>
-      <div class="t"><div class="n">${esc(s.name)}</div><div class="m">${esc(s.ago)} · ${esc(s.path)}</div></div></div>`;
+      <div class="t"><div class="n">${esc(s.name)}</div><div class="m">${esc(s.ago)} · ${esc(s.path)}</div></div>
+      ${s.status === 'closed' ? '<span class="acts"><button data-act="reveal" title="Show the session file in Finder">Finder</button>'
+        + '<button class="del" data-act="ask" title="Move this session to the Trash">Delete</button></span>' : ''}</div>`
+    + (s.id === pendingDelete ? `<div class="confirm" data-id="${esc(s.id)}"><p>Move <b>${esc(s.name)}</b> to the Trash?<br>
+        You can put it back from the Trash later.</p><button class="no" data-act="cancel">Cancel</button>
+        <button class="yes" data-act="trash">Move to Trash</button></div>` : '');
+
+  function clearSearch() { const box = document.getElementById('q'); box.value = ''; render(); box.focus(); }
 
   function render() {
     const q = document.getElementById('q').value.toLowerCase();
+    document.getElementById('qx').style.display = q ? 'block' : 'none';  // ✕ only when there is text
     const byStatus = (FILTERS.find(f => f[0] === filter) || FILTERS[0])[2];
     document.getElementById('chips').innerHTML = FILTERS.map(([key, label, test]) =>
       `<button class="${key === filter ? 'on' : ''}" onclick="setFilter('${key}')">${label}<span class="c">${sessions.filter(test).length}</span></button>`).join('');
@@ -117,6 +138,20 @@ PAGE = """<!doctype html>
   }
 
   document.getElementById('list').addEventListener('click', async e => {
+    const act = e.target.dataset && e.target.dataset.act;
+    if (act) {  // a button inside a row or the confirm bar, not the row itself
+      const id = e.target.closest('[data-id]').dataset.id;
+      if (act === 'ask') { pendingDelete = id; render(); }
+      else if (act === 'cancel') { pendingDelete = null; render(); }
+      else if (act === 'reveal') fetch('/reveal?token=' + TOKEN + '&id=' + encodeURIComponent(id));
+      else if (act === 'trash') {
+        pendingDelete = null; render();  // close the confirm bar right away
+        const r = await fetch('/trash?token=' + TOKEN + '&id=' + encodeURIComponent(id));
+        if (!r.ok) alert('Could not move it to the Trash (it may have been reopened).');
+        last = ''; refresh();
+      }
+      return;
+    }
     const el = e.target.closest('.s'); if (!el) return;
     el.style.opacity = .4;
     await fetch('/open?token=' + TOKEN + '&id=' + encodeURIComponent(el.dataset.id));
@@ -203,6 +238,13 @@ async def handle(connection, reader, writer):
             session_id = (query.get("id") or [""])[0]
             ok = query.get("token") == [TOKEN] and await open_or_focus(connection, session_id)
             respond(writer, "200 OK" if ok else "403 Forbidden", json.dumps({"ok": bool(ok)}), "application/json")
+        elif url.path in ("/trash", "/reveal"):
+            session_id = (query.get("id") or [""])[0]
+            ok = False
+            if query.get("token") == [TOKEN] and session_id:
+                ok = bool(claude_sessions.trash_session(session_id) if url.path == "/trash"
+                          else claude_sessions.reveal_session(session_id))
+            respond(writer, "200 OK" if ok else "403 Forbidden", json.dumps({"ok": ok}), "application/json")
         else:
             respond(writer, "200 OK", PAGE.replace("__TOKEN__", TOKEN))
         await writer.drain()
